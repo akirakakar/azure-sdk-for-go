@@ -234,11 +234,11 @@ func (c *managedIdentityClient) getAzureArcSecretKey(ctx context.Context, scopes
 		return "", &AuthenticationFailedError{inner: newAADAuthenticationFailedError(response), msg: fmt.Sprintf("Expected a 401 Unauthorized response, received: %d", response.StatusCode)}
 	}
 	if header := response.Header.Get("WWW-Authenticate"); len(header) != 0 {
-		pos := strings.LastIndex(header, "Realm=")
+		pos := strings.LastIndex(header, "=")
 		if pos == -1 {
 			return "", errors.New("Did not receive a value from WWW-Authenticate header")
 		}
-		out, err := exec.Command("/bin/sh", "-c", "sudo cat", header[:pos+1]).Output()
+		out, err := exec.Command("/bin/sh", "-c", "sudo cat", header[pos+1:]).Output()
 		if err != nil {
 			return "", err
 		}
