@@ -8,10 +8,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -238,11 +238,15 @@ func (c *managedIdentityClient) getAzureArcSecretKey(ctx context.Context, scopes
 		if pos == -1 {
 			return "", errors.New("Did not receive a value from WWW-Authenticate header")
 		}
-		key, err := ioutil.ReadFile(header[:pos+1])
+		out, err := exec.Command("/bin/sh", "-c", "sudo cat", header[:pos+1]).Output()
 		if err != nil {
-			return "", fmt.Errorf("Could not read file contents: %w", err)
+			return "", err
 		}
-		return string(key), nil
+		// key, err := ioutil.ReadFile(header[:pos+1])
+		// if err != nil {
+		// 	return "", fmt.Errorf("Could not read file contents: %w", err)
+		// }
+		return string(out), nil
 	}
 	return "", errors.New("Did not receive a value from WWW-Authenticate header")
 }
