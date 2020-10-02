@@ -12,6 +12,9 @@ param(
   [Parameter(Mandatory = $true)]
   [int]$DefinitionId,
 
+  [Parameter(Mandatory = $false)]
+  [string]$QueuedPipelines,
+
   [Parameter(Mandatory = $true)]
   [string]$AuthToken
 )
@@ -40,3 +43,12 @@ catch {
 }
 
 LogDebug "Pipeline [ $($resp.definition.name) ] queued at [ $($resp._links.web.href) ]"
+
+if ($QueuedPipelines -or ($QueuedPipelines -eq 'not-yet-set')) {
+  LogDebug $QueuedPipelines
+  $QueuedPipelines.Replace("not-yet-set","")
+  $QueuedPipelineLinks = "$QueuedPipelines\n[$($resp.definition.name)]($($resp._links.web.href))"
+  $QueuedPipelineLinks
+  Write-Host "##vso[task.setvariable variable=QueuedPipelines]$QueuedPipelineLinks"
+}
+
